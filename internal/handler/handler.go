@@ -1,23 +1,11 @@
 package handler
 
-import (
-	"database/sql"
-	"fmt"
-	"net/http"
-)
+import "counter-test-task/internal/service"
 
 type Handler struct {
-	DB *sql.DB
+	Srv *service.Service
 }
 
-func New(db *sql.DB) *Handler {
-	return &Handler{DB: db}
-}
-
-func (h *Handler) Hello(w http.ResponseWriter, r *http.Request) {
-	status := "Connected to database"
-	if err := h.DB.Ping(); err != nil {
-		status = "DB ping error: " + err.Error()
-	}
-	fmt.Fprintf(w, "Hello world!<br>Status: %s", status)
+func New(srv *service.Service) *Handler {
+	return &Handler{Srv: srv}
 }

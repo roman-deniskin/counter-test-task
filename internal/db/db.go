@@ -6,17 +6,22 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func MustConnect() *sql.DB {
+	_ = godotenv.Load()
+
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s sslmode=disable",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		getenv("DB_HOST", "postgres"),
 		getenv("DB_USER", "postgres"),
 		getenv("DB_PASSWORD", "postgres"),
 		getenv("DB_NAME", "postgres"),
+		getenv("DB_PORT", "5432"),
 	)
+
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("cannot open db: %v", err)
