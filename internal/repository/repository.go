@@ -63,7 +63,7 @@ type StatsRow struct {
 	Count int
 }
 
-func (r *Repository) SelectStats(ctx context.Context, bannerID int64, from, to time.Time) ([]StatsRow, error) {
+func (r *Repository) SelectStatsFromDB(ctx context.Context, bannerID int64, from, to time.Time) ([]StatsRow, error) {
 	const q = `
 SELECT ts_minute, count
 FROM banner_clicks

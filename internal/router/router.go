@@ -10,10 +10,10 @@ func New(h *handler.Handler) http.Handler {
 	mux := http.NewServeMux()
 
 	// /counter/{id} — только GET
-	mux.HandleFunc("/counter/", h.Counter)
+	mux.HandleFunc("GET /counter/{id}", h.Counter)
 
 	// /stats/{id} — только POST
-	mux.HandleFunc("/stats/", h.Stats)
+	mux.HandleFunc("POST /stats/{id}", h.Stats)
 
 	return mux
 }

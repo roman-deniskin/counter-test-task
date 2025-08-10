@@ -27,8 +27,8 @@ func newAggregator() *aggregator {
 
 func (a *aggregator) Inc(bannerID int64, t time.Time) {
 	tu := t.UTC()
-	min := tu.Truncate(time.Minute).Unix()
-	k := aggKey{id: bannerID, tm: min}
+	minTu := tu.Truncate(time.Minute).Unix()
+	k := aggKey{id: bannerID, tm: minTu}
 
 	a.mu.Lock()
 	v := a.m[k]
@@ -71,7 +71,7 @@ func (a *aggregator) Requeue(rows []repository.ClickRow) {
 	a.mu.Unlock()
 }
 
-func (a *aggregator) DeltasForRange(bannerID int64, from, to time.Time) map[time.Time]uint64 {
+func (a *aggregator) SelectStatsFromMap(bannerID int64, from, to time.Time) map[time.Time]uint64 {
 	fromMin := from.UTC().Truncate(time.Minute).Unix()
 	toMin := to.UTC().Truncate(time.Minute).Unix() // правая граница не включается
 

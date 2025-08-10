@@ -90,7 +90,7 @@ func main() {
 			case <-t.C:
 				okNow := okCnt.Load()
 				errNow := errCnt.Load()
-				fmt.Printf("OK/s=%d ERR/s=%d  totalOK=%d totalERR=%d\n",
+				fmt.Printf("OK/s=%d ERR/s=%d  total OK=%d total ERR=%d\n",
 					okNow-prevOK, errNow-prevErr, okNow, errNow)
 				prevOK, prevErr = okNow, errNow
 			}

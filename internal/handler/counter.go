@@ -2,28 +2,27 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
 // /counter/{bannerID} (GET) — инкремент без тела ответа (204 No Content)
 func (h *Handler) Counter(w http.ResponseWriter, r *http.Request) {
+	// TODO: Перенести проверки в middleware
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	id, err := idFromPath(r.URL.Path, "/counter/")
-	if err != nil {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
 		http.Error(w, "bad banner id", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.Srv.IncClick(r.Context(), id); err != nil {
+	if err := h.Srv.IncClick(id); err != nil {
 		http.Error(w, "increment failed", http.StatusInternalServerError)
 		return
 	}
@@ -49,13 +48,15 @@ type statsResponse struct {
 }
 
 func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
+	// TODO: Проверки вынести в отдельный middleware
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	id, err := idFromPath(r.URL.Path, "/stats/")
-	if err != nil {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
 		http.Error(w, "bad banner id", http.StatusBadRequest)
 		return
 	}
@@ -94,24 +95,4 @@ func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(out)
-}
-
-// idFromPath извлекает числовой id из пути после prefix.
-// Примеры: "/counter/42" при prefix "/counter/" вернёт 42.
-func idFromPath(path, prefix string) (int64, error) {
-	if !strings.HasPrefix(path, prefix) {
-		return 0, errors.New("bad prefix")
-	}
-	rest := strings.TrimPrefix(path, prefix)
-	if i := strings.IndexByte(rest, '/'); i >= 0 {
-		rest = rest[:i]
-	}
-	if rest == "" {
-		return 0, fmt.Errorf("empty id")
-	}
-	id, err := strconv.ParseInt(rest, 10, 64)
-	if err != nil || id <= 0 {
-		return 0, fmt.Errorf("invalid id")
-	}
-	return id, nil
 }
